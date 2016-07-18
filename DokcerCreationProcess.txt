@@ -1,0 +1,41 @@
+Install docker in host system
+sudo yum update -y
+sudo yum install -y docker
+sudo service docker start
+sudo usermod -a -G docker ec2-user
+
+
+To create new docker from scratch
+
+Prepare docker file
+create docker file (Dockerfile) and place it in Docker base folder in the host system along with jars required for object spy.
+
+Updating object spy jars
+Extract ObjectSpyWeb.war (using 7-zip) and do changes as per steps 8,9,10&11 in Objectspy Release docuement.
+Extract ObjectSpy.jar (using 7-zip) and do changes as per steps 12 in Objectspy Release docuement.
+Extract logServiceRestful.war (using 7-zip) and do changes as per "Deployment Document for LogServiceRestful" section in Objectspy Release docuement.
+Copy the updated jar/war files to Docker base folder where Dockerfile is stored.
+
+
+Creating Docker
+Execute below commands in docker base folder in host system
+sudo docker build -t arulkumar1967/objectspy .
+sudo docker run -it -p 8080:8080 -p 8443:8443 arulkumar1967/objectspy
+
+Jar signing
+In docker prompt (which is already there when docker run command is executed) go to /opt/<jdk>/bin and run below commands
+./jarsigner -keystore /usr/share/tomcat7/webapps/ROOT/clictestjarsigncert.jks /usr/share/tomcat7/webapps/ROOT/ObjectSpy.jar clic
+./jarsigner -keystore /usr/share/tomcat7/webapps/ROOT/clictestjarsigncert.jks /usr/share/tomcat7/webapps/ROOT/mysql-connector-java-5.1.24-bin.jar clic
+./jarsigner -keystore /usr/share/tomcat7/webapps/ROOT/clictestjarsigncert.jks /usr/share/tomcat7/webapps/ROOT/selenium-server-standalone-2.48.2.jar clic
+./jarsigner -keystore /usr/share/tomcat7/webapps/ROOT/clictestjarsigncert.jks /usr/share/tomcat7/webapps/ROOT/jersey-client-1.9.1.jar clic
+./jarsigner -keystore /usr/share/tomcat7/webapps/ROOT/clictestjarsigncert.jks /usr/share/tomcat7/webapps/ROOT/jersey-core-1.9.1.jar clic
+./jarsigner -keystore /usr/share/tomcat7/webapps/ROOT/clictestjarsigncert.jks /usr/share/tomcat7/webapps/ROOT/jersey-server-1.9.1.jar clic
+
+go to /usr/share/tomcat7/bin and execute below command to start tomcat
+./startup
+
+
+Pull working docker (configured for 81.134.193.73)
+docker login
+docker pull arulkumar1967/objectspy:version7
+sudo docker run -it -p 8080:8080 -p 8443:8443 arulkumar1967/objectspy
